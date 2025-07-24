@@ -16,7 +16,7 @@ llmmapper/
 │   │   │   └── com/example/llmmapper/
 │   │   │       ├── LlmmapperApplication.java
 │   │   │       ├── smartservice/
-│   │   │       │   └── LlmMapperSmartService.java
+│   │   │       │   └── LlmMapperSmartServicev2.java
 │   │   │       └── util/
 │   │   │           ├── PromptUtil.java
 │   │   │           └── EnvUtil.java
@@ -24,7 +24,7 @@ llmmapper/
 │   │       ├── appian-plugin.xml
 │   │       ├── application.properties
 │   │       └── com/example/llmmapper/smartservice/
-│   │           └── llm-mapper_en_US.properties
+│   │           └── llm-mapper-v2_en_US.properties
 │   └── test/
 │       ├── java/com/example/llmmapper/LlmmapperApplicationTests.java
 │       └── resources/application.properties
