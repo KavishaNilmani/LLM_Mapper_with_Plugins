@@ -1,4 +1,4 @@
-HELP.md
+# HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -38,9 +38,9 @@ build/
 /target/
 
 # Maven wrapper
-.mvn/
-mvnw
-mvnw.cmd
+# .mvn/
+# mvnw
+# mvnw.cmd
 
 # =========================
 # IDE files (common)
