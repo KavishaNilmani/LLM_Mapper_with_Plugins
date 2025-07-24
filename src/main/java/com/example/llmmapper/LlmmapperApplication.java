@@ -15,6 +15,8 @@ import org.springframework.core.env.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SpringBootApplication
@@ -37,8 +39,10 @@ public class LlmmapperApplication implements CommandLineRunner {
 
         if (isTestProfile) return;
 
-        String filePath = "buysheet 1.txt";
-        List<String> lines = Files.readAllLines(new File(filePath).toPath());
+        // String filePath = "buysheet 1.txt";
+        // List<String> lines = Files.readAllLines(new File(filePath).toPath());
+        String inputText = new String(Files.readAllBytes(Paths.get("buysheet 1.txt")), StandardCharsets.UTF_8);
+        List<String> lines = Arrays.asList(inputText.split("\\r?\\n"));
         int chunkSize = 20;
         List<Map<String, Object>> allResults = new ArrayList<>();
         Random random = new Random();
