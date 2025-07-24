@@ -1,0 +1,23 @@
+<appian-plugin name="LLM Mapper Smart Service" key="com.example.llmmapper.smartservice">
+    <plugin-info>
+        <description>Smart service used to perform LLM mapping</description>
+        <vendor name="Lowcode Minds Technology Pvt Ltd" url="http://www.lowcodeminds.com" />
+        <version>0.0.1-SNAPSHOT</version>
+        <application-version min="6.1" />
+    </plugin-info>
+    <smart-service name="LLM Mapper Smart Service" key="llm-mapper" class="com.example.llmmapper.smartservice.LlmMapperSmartService" />
+</appian-plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
