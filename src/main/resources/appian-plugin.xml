@@ -5,19 +5,5 @@
         <version>0.0.1-SNAPSHOT</version>
         <application-version min="6.1" />
     </plugin-info>
-    <smart-service name="LLM Mapper Smart Service" key="llm-mapper" class="com.example.llmmapper.smartservice.LlmMapperSmartService" />
+    <smart-service name="LLM Mapper Smart Service" key="llm-mapper-v2" class="com.example.llmmapper.smartservice.LlmMapperSmartServicev2" />
 </appian-plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
