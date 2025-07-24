@@ -1,6 +1,6 @@
 # HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+# .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -70,6 +70,6 @@ Thumbs.db
 # =========================
 # Custom: Runtime or test data
 # =========================
-output.json
-buysheet 1.txt
+# output.json
+# buysheet 1.txt
 
