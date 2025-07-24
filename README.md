@@ -44,21 +44,21 @@ llmmapper/
 ### Java Files
 
 - **LlmmapperApplication.java**: Main Spring Boot application. Reads buysheet data, chunks it, sends prompts to Azure OpenAI, parses the LLM response, and writes structured output to `output.json`.
-- **smartservice/LlmMapperSmartService.java**: Implements the Appian Smart Service. Handles input/output parameters, reads input files, calls Azure OpenAI, and writes results. Integrates with Appian's process framework.
+- **smartservice/LlmMapperSmartServicev2.java**: Implements the Appian Smart Service. Handles input/output parameters, reads input files, calls Azure OpenAI, and writes results. Integrates with Appian's process framework.
 - **util/PromptUtil.java**: Utility for generating the LLM prompt from buysheet data. Ensures consistent prompt formatting.
 - **util/EnvUtil.java**: Utility for loading environment variables from a `.env` file using `java-dotenv`.
 - **test/java/LlmmapperApplicationTests.java**: Basic Spring Boot test to ensure the application context loads.
 
 ### XML Files
 
-- **appian-plugin.xml**: Declares the Appian plug-in, its metadata, and registers the smart service (`LlmMapperSmartService`).
+- **appian-plugin.xml**: Declares the Appian plug-in, its metadata, and registers the smart service (`LlmMapperSmartServicev2`).
 - **pom.xml**: Maven build file. Declares dependencies (Spring Boot, OkHttp, Jackson, Appian SDK), plugins for building and packaging, and Java version.
 
 ### Properties Files
 
 - **application.properties (main)**: Sets Spring Boot app name and disables web server mode.
 - **application.properties (test)**: Activates the `test` profile for test runs.
-- **llm-mapper_en_US.properties**: Provides display names and descriptions for the smart service and its parameters in Appian.
+- **llm-mapper-v2_en_US.properties**: Provides display names and descriptions for the smart service and its parameters in Appian.
 
 ### Other Files
 
@@ -136,7 +136,7 @@ The following environment variables must be set (in a `.env` file or Appian envi
 ---
 
 ## References & Further Reading
-- [Appian Plug-in Documentation](https://docs.appian.com/suite/help/latest/Custom_Smart_Services.html)
+- [Appian Plug-in Documentation](https://docs.appian.com/suite/help/25.2/Custom_Smart_Service_Plug-ins.html)
 - [Spring Boot](https://spring.io/projects/spring-boot)
 - [Maven](https://maven.apache.org/)
 - [Azure OpenAI](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/)
