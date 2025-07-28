@@ -2,7 +2,6 @@ package com.example.llmmapper.smartservice;
 
 import com.appiancorp.suiteapi.process.framework.AppianSmartService;
 import com.appiancorp.suiteapi.process.framework.Input;
-// import com.appiancorp.suiteapi.process.framework.Result;
 import com.appiancorp.suiteapi.process.framework.Required;
 import com.appiancorp.suiteapi.process.palette.PaletteInfo;
 import com.example.llmmapper.util.PromptUtil;
@@ -12,8 +11,6 @@ import okhttp3.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 
 @PaletteInfo(palette = "Smart Servicesv2", paletteCategory = "AI Tools")
@@ -62,23 +59,22 @@ public class LlmMapperSmartServicev2 extends AppianSmartService {
         this.prompt = prompt;
     }
 
-    // Getters for outputs
-    // @Result
-    // public String getModelResponse() {
-    //     return modelResponse;
-    // }
-
-    // @Result
+    // Optional output getter
     public String getJsonResponse() {
         return jsonResponse;
     }
 
+    // HTTP and JSON utilities
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void run() {
         try {
+            if (inputText == null || inputText.trim().isEmpty()) {
+                throw new RuntimeException("No inputText provided. Please provide the sample data.");
+            }
+
             List<String> lines = Arrays.asList(inputText.split("\\r?\\n"));
             int chunkSize = 20;
             List<Map<String, Object>> allResults = new ArrayList<>();
@@ -88,36 +84,51 @@ public class LlmMapperSmartServicev2 extends AppianSmartService {
                 List<String> chunk = lines.subList(i, Math.min(i + chunkSize, lines.size()));
                 String chunkText = String.join("\n", chunk);
 
-                // Use provided prompt if available, else generate
                 String effectivePrompt = (this.prompt != null && !this.prompt.trim().isEmpty())
                         ? this.prompt
                         : PromptUtil.getPrompt(chunkText);
 
-                // Call the LLM
+                System.out.println("Prompt for chunk " + (i / chunkSize + 1) + ":\n" + effectivePrompt);
+
                 this.modelResponse = callAzureOpenAI(effectivePrompt, this.endpoint, this.deployment, this.apiVersion, this.apiKey);
-                this.jsonResponse = extractJson(this.modelResponse);
+
+                if (modelResponse == null || modelResponse.trim().isEmpty()) {
+                    System.err.println("LLM returned an empty response. Skipping chunk " + (i / chunkSize + 1));
+                    continue;
+                }
+
+                System.out.println("LLM response for chunk " + (i / chunkSize + 1) + ":\n" + modelResponse);
+
+                try {
+                    this.jsonResponse = extractJson(this.modelResponse);
+                } catch (RuntimeException e) {
+                    System.err.println("Failed to extract JSON from LLM response:\n" + modelResponse);
+                    this.jsonResponse = "[]"; // Fallback to empty array
+                }
 
                 List<Map<String, Object>> records;
                 try {
                     records = mapper.readValue(jsonResponse, List.class);
                 } catch (Exception e) {
-                    System.err.println("Failed to parse JSON for chunk " + (i / chunkSize + 1) + ":\n" + modelResponse);
+                    System.err.println("Failed to parse extracted JSON for chunk " + (i / chunkSize + 1) + ":\n" + jsonResponse);
                     throw e;
                 }
 
                 for (Map<String, Object> row : records) {
                     Map<String, Object> result = new LinkedHashMap<>();
-                    result.put("Release Date", row.get("Release Date"));
-                    result.put("Season", row.get("Season"));
+                    // result.put("Release Date", row.get("Release Date"));
+                    // result.put("Season", row.get("Season"));
                     result.put("confidence", 0.90 + (0.05 * random.nextDouble()));
                     allResults.add(result);
                 }
             }
 
             mapper.writerWithDefaultPrettyPrinter().writeValue(new File("output.json"), allResults);
-            System.out.println("✔ Output written to output.json");
+            System.out.println("Output written to output.json");
 
         } catch (Exception e) {
+            System.err.println("Error during smart service execution:");
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -135,8 +146,12 @@ public class LlmMapperSmartServicev2 extends AppianSmartService {
         body.put("temperature", 0.2);
 
         RequestBody requestBody = RequestBody.create(body.toString(), MediaType.get("application/json"));
+        String url = endpoint + "/openai/deployments/" + deployment + "/chat/completions?api-version=" + apiVersion;
+
+        System.out.println("Calling LLM at: " + url);
+
         Request request = new Request.Builder()
-                .url(endpoint + "/openai/deployments/" + deployment + "/chat/completions?api-version=" + apiVersion)
+                .url(url)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("api-key", apiKey)
                 .post(requestBody)
@@ -145,8 +160,10 @@ public class LlmMapperSmartServicev2 extends AppianSmartService {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 String errorBody = response.body() != null ? response.body().string() : "No error body";
+                System.err.println("LLM call failed: " + response + "\nError body: " + errorBody);
                 throw new IOException("Request failed: " + response + "\nError body: " + errorBody);
             }
+
             String responseBody = response.body().string();
             ObjectNode root = (ObjectNode) mapper.readTree(responseBody);
             return root.path("choices").get(0).path("message").path("content").asText();
@@ -156,6 +173,19 @@ public class LlmMapperSmartServicev2 extends AppianSmartService {
     private String extractJson(String response) {
         int start = response.indexOf("[");
         int end = response.lastIndexOf("]");
-        return response.substring(start, end + 1);
+
+        if (start == -1 || end == -1 || start >= end) {
+            System.err.println("No valid JSON array found in LLM response:\n" + response);
+            return "[]"; // safe fallback
+        }
+
+        String jsonPart = response.substring(start, end + 1).trim();
+
+        if (!jsonPart.startsWith("[") || !jsonPart.endsWith("]")) {
+            System.err.println("Extracted content is not a valid JSON array:\n" + jsonPart);
+            return "[]";
+        }
+
+        return jsonPart;
     }
 }
