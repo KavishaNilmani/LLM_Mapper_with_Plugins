@@ -4,14 +4,21 @@ public class PromptUtil {
     public static String getPrompt(String text) {
         return String.format("""
         You are a data assistant. From the following buysheet data:
+
         %s
 
-        Extract **all** entries from the following data, not just the first few.
-        - \"Release Date\": use 'In DC Date'
-        - \"Season\": extract from either 'Cost Folio Season' or text like "'25-SPRING'" in 'Comment'
+        Extract all records. For each record:
+        - "Release Date": use the value from the field 'In DC Date'
+        - "Season": use the value from the field 'Cost Folio Season', or infer it from 'Comment' (e.g., "SPRING 2025", "FALL 2025")
 
-        Return an array of JSON objects with keys: \"Release Date\", \"Season\"
-        Do not explain anything, return only JSON array.
+        Return only a valid **JSON array** like this:
+        [
+          {"Release Date": "2025-09-12", "Season": "SPRING 2025"},
+          ...
+        ]
+
+        Do not include explanations or markdown. Only output the JSON array.
+        If no valid records exist, return: []
         """, text);
     }
 } 
